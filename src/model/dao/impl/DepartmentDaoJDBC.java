@@ -75,36 +75,54 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 
 	@Override
 	public void insert(Department obj) {
-			PreparedStatement st = null;
-			try {
-				st = conn.prepareStatement("INSERT INTO department (Name) VALUES (?);",
-				Statement.RETURN_GENERATED_KEYS);
-				st.setString(1, obj.getName());
+		PreparedStatement st = null;
+		try {
+			st = conn.prepareStatement("INSERT INTO department (Name) VALUES (?);",
+			Statement.RETURN_GENERATED_KEYS);
+			st.setString(1, obj.getName());
 				
-				int rowsAffected = st.executeUpdate();
+			int rowsAffected = st.executeUpdate();
 				
-				if (rowsAffected > 0) {
-					ResultSet rs = st.getGeneratedKeys();
-					if (rs.next()) {
-						int id = rs.getInt(1);
-						obj.setId(id);
-					}
-				}
-				else {
-					throw new DbException("Unexpected error! No rows affected!");
+			if (rowsAffected > 0) {
+				ResultSet rs = st.getGeneratedKeys();
+				if (rs.next()) {
+					int id = rs.getInt(1);
+					obj.setId(id);
 				}
 			}
-			catch (SQLException e) {
-				throw new DbException(e.getMessage());
+			else {
+				throw new DbException("Unexpected error! No rows affected!");
 			}
-			finally {
-				DB.closeStatement(st);
-			}
+		}
+		catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+		finally {
+			DB.closeStatement(st);
+		}
 	}
 
 	@Override
 	public void update(Department obj) {
-		// TODO Auto-generated method stub
+		PreparedStatement st = null;
+		try {
+			st = conn.prepareStatement("UPDATE DEPARTMENT set Name = ? where Id = ?");
+			
+			st.setString(1, obj.getName());
+			st.setInt(2, obj.getId());
+				
+			int rowsAffected = st.executeUpdate();
+				
+			if (rowsAffected == 0) {
+				throw new DbException("No department found with the given ID.");
+			}
+		}
+		catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+		finally {
+			DB.closeStatement(st);
+		}
 
 	}
 
